@@ -8,9 +8,24 @@ interface WizardProgressProps {
   totalSteps: number;
   labels: { en: string; th: string }[];
   lang: 'en' | 'th';
+  onStepClick?: (step: number) => void;
+  canNavigateToStep?: (step: number) => boolean;
 }
 
-export function WizardProgress({ currentStep, totalSteps, labels, lang }: WizardProgressProps) {
+export function WizardProgress({ 
+  currentStep, 
+  totalSteps, 
+  labels, 
+  lang,
+  onStepClick,
+  canNavigateToStep
+}: WizardProgressProps) {
+  const handleStepClick = (step: number) => {
+    if (onStepClick && canNavigateToStep && canNavigateToStep(step)) {
+      onStepClick(step);
+    }
+  };
+
   return (
     <div className="w-full py-6">
       <div className="flex items-center justify-between relative">
@@ -27,15 +42,20 @@ export function WizardProgress({ currentStep, totalSteps, labels, lang }: Wizard
           const step = i + 1;
           const isCompleted = step < currentStep;
           const isCurrent = step === currentStep;
+          const canNavigate = canNavigateToStep ? canNavigateToStep(step) : true;
+          const isClickable = onStepClick && canNavigate;
           
           return (
             <div key={step} className="flex flex-col items-center gap-2">
               <div
+                onClick={() => handleStepClick(step)}
                 className={cn(
                   'w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 font-semibold text-sm',
                   isCompleted && 'bg-primary text-primary-foreground',
                   isCurrent && 'bg-primary text-primary-foreground ring-4 ring-primary/20',
-                  !isCompleted && !isCurrent && 'bg-muted text-muted-foreground'
+                  !isCompleted && !isCurrent && 'bg-muted text-muted-foreground',
+                  isClickable && 'cursor-pointer hover:scale-110 hover:ring-2 hover:ring-primary/30',
+                  !isClickable && 'cursor-not-allowed opacity-60'
                 )}
               >
                 {isCompleted ? (
@@ -45,9 +65,11 @@ export function WizardProgress({ currentStep, totalSteps, labels, lang }: Wizard
                 )}
               </div>
               <span
+                onClick={() => handleStepClick(step)}
                 className={cn(
                   'text-xs font-medium transition-colors hidden sm:block',
-                  (isCompleted || isCurrent) ? 'text-foreground' : 'text-muted-foreground'
+                  (isCompleted || isCurrent) ? 'text-foreground' : 'text-muted-foreground',
+                  isClickable && 'cursor-pointer hover:text-foreground'
                 )}
               >
                 {labels[i]?.[lang] || `Step ${step}`}

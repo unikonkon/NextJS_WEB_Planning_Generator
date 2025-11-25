@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -16,7 +17,8 @@ import {
   AlertCircle,
   FileText,
   Copy,
-  Check
+  Check,
+  History
 } from 'lucide-react';
 import { WizardProgress, StepOne, StepTwo, StepThree, StepFour } from '@/components/wizard';
 import { ResultsDisplay } from '@/components/results';
@@ -24,6 +26,7 @@ import { ExportButtons } from '@/components/export';
 import { DEFAULT_PROJECT_DETAILS } from '@/data/constants';
 import { saveDraft, loadDraft, clearDraft } from '@/lib/storage';
 import { buildPrompt } from '@/lib/prompt-builder';
+import { saveGeneration } from '@/lib/indexeddb';
 import type { ProjectDetails, GeneratedPlan, WebsiteTypeId } from '@/types';
 
 const WIZARD_LABELS = [
@@ -34,6 +37,7 @@ const WIZARD_LABELS = [
 ];
 
 export default function Home() {
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [details, setDetails] = useState<ProjectDetails>(DEFAULT_PROJECT_DETAILS);
   const [generatedPlan, setGeneratedPlan] = useState<GeneratedPlan | null>(null);
@@ -133,6 +137,19 @@ export default function Home() {
       
       setGeneratedPlan(data.plan);
       clearDraft();
+      
+      // Save to IndexedDB
+      try {
+        await saveGeneration({
+          projectDetails: details,
+          generatedPlan: data.plan,
+          rawResponse: data.rawResponse,
+          customPrompt: customPrompt || undefined,
+        });
+      } catch (dbError) {
+        console.error('Failed to save to IndexedDB:', dbError);
+        // Don't show error to user, just log it
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -177,6 +194,28 @@ export default function Home() {
     }
   };
 
+  const canNavigateToStep = (step: number) => {
+    // Allow navigation to step 1 always
+    if (step === 1) return true;
+    
+    // For step 2, need website type selected
+    if (step === 2) return !!details.websiteType;
+    
+    // For step 3, need website type and at least one feature
+    if (step === 3) return !!details.websiteType && details.selectedFeatures.length > 0;
+    
+    // For step 4, need website type and at least one feature
+    if (step === 4) return !!details.websiteType && details.selectedFeatures.length > 0;
+    
+    return false;
+  };
+
+  const handleStepClick = (step: number) => {
+    if (canNavigateToStep(step)) {
+      setCurrentStep(step);
+    }
+  };
+
   // If plan is generated, show results
   if (generatedPlan) {
     return (
@@ -188,14 +227,24 @@ export default function Home() {
               <ChevronLeft className="w-4 h-4" />
               {uiLang === 'th' ? 'สร้างใหม่' : 'Start New'}
             </Button>
-            <div className="flex items-center gap-2">
-              <Globe className="w-4 h-4 text-muted-foreground" />
-              <Label className="text-sm">EN</Label>
-              <Switch
-                checked={uiLang === 'th'}
-                onCheckedChange={(checked) => setUiLang(checked ? 'th' : 'en')}
-              />
-              <Label className="text-sm">TH</Label>
+            <div className="flex items-center gap-4">
+              <Button
+                variant="outline"
+                onClick={() => router.push('/history')}
+                className="gap-2"
+              >
+                <History className="w-4 h-4" />
+                {uiLang === 'th' ? 'ประวัติ' : 'History'}
+              </Button>
+              <div className="flex items-center gap-2">
+                <Globe className="w-4 h-4 text-muted-foreground" />
+                <Label className="text-sm">EN</Label>
+                <Switch
+                  checked={uiLang === 'th'}
+                  onCheckedChange={(checked) => setUiLang(checked ? 'th' : 'en')}
+                />
+                <Label className="text-sm">TH</Label>
+              </div>
             </div>
           </header>
 
@@ -279,14 +328,24 @@ export default function Home() {
               <ChevronLeft className="w-4 h-4" />
               {uiLang === 'th' ? 'เริ่มใหม่' : 'Start Over'}
             </Button>
-            <div className="flex items-center gap-2">
-              <Globe className="w-4 h-4 text-muted-foreground" />
-              <Label className="text-sm">EN</Label>
-              <Switch
-                checked={uiLang === 'th'}
-                onCheckedChange={(checked) => setUiLang(checked ? 'th' : 'en')}
-              />
-              <Label className="text-sm">TH</Label>
+            <div className="flex items-center gap-4">
+              <Button
+                variant="outline"
+                onClick={() => router.push('/history')}
+                className="gap-2"
+              >
+                <History className="w-4 h-4" />
+                {uiLang === 'th' ? 'ประวัติ' : 'History'}
+              </Button>
+              <div className="flex items-center gap-2">
+                <Globe className="w-4 h-4 text-muted-foreground" />
+                <Label className="text-sm">EN</Label>
+                <Switch
+                  checked={uiLang === 'th'}
+                  onCheckedChange={(checked) => setUiLang(checked ? 'th' : 'en')}
+                />
+                <Label className="text-sm">TH</Label>
+              </div>
             </div>
           </header>
 
@@ -373,11 +432,11 @@ export default function Home() {
       <div className="container mx-auto px-4 py-8 max-w-5xl">
         {/* Header */}
         <header className="text-center mb-8">
-          <div className="flex items-center justify-center gap-3 mb-4">
+          {/* <div className="flex items-center justify-center gap-3 mb-4">
             <div className="p-3 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5">
               <Sparkles className="w-8 h-8 text-primary" />
             </div>
-          </div>
+          </div> */}
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-2">
             {uiLang === 'th' 
               ? 'AI-Powered Discovery & Planning' 
@@ -389,15 +448,25 @@ export default function Home() {
               : 'Generate comprehensive project discovery documents automatically with AI - from Requirements to Risk Assessment'}
           </p>
           
-          {/* Language Toggle */}
-          <div className="flex items-center justify-center gap-2 mt-4">
-            <Globe className="w-4 h-4 text-muted-foreground" />
-            <Label className="text-sm">EN</Label>
-            <Switch
-              checked={uiLang === 'th'}
-              onCheckedChange={(checked) => setUiLang(checked ? 'th' : 'en')}
-            />
-            <Label className="text-sm">TH</Label>
+          {/* Language Toggle & History */}
+          <div className="flex items-center justify-center gap-4 mt-4">
+            <Button
+              variant="outline"
+              onClick={() => router.push('/history')}
+              className="gap-2"
+            >
+              <History className="w-4 h-4" />
+              {uiLang === 'th' ? 'ดูประวัติ' : 'View History'}
+            </Button>
+            <div className="flex items-center gap-2">
+              <Globe className="w-4 h-4 text-muted-foreground" />
+              <Label className="text-sm">EN</Label>
+              <Switch
+                checked={uiLang === 'th'}
+                onCheckedChange={(checked) => setUiLang(checked ? 'th' : 'en')}
+              />
+              <Label className="text-sm">TH</Label>
+            </div>
           </div>
         </header>
 
@@ -407,6 +476,8 @@ export default function Home() {
           totalSteps={4} 
           labels={WIZARD_LABELS}
           lang={uiLang}
+          onStepClick={handleStepClick}
+          canNavigateToStep={canNavigateToStep}
         />
 
         {/* Wizard Content */}

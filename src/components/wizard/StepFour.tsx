@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { buildPrompt } from '@/lib/prompt-builder';
 import type { ProjectDetails } from '@/types';
-import { FileCode, RotateCcw, Copy, Check, Eye, Edit3 } from 'lucide-react';
+import { FileCode, RotateCcw, Copy, Check, Eye, Edit3, Info, Zap } from 'lucide-react';
 
 interface StepFourProps {
   details: ProjectDetails;
@@ -126,8 +126,8 @@ export function StepFour({ details, prompt, onPromptChange, lang }: StepFourProp
             {isEditing ? (
               <div className="space-y-2">
                 <Label className="text-sm text-muted-foreground">
-                  {lang === 'th' 
-                    ? '💡 แก้ไข prompt เพื่อปรับแต่งผลลัพธ์ตามต้องการ' 
+                  {lang === 'th'
+                    ? '💡 แก้ไข prompt เพื่อปรับแต่งผลลัพธ์ตามต้องการ'
                     : '💡 Edit the prompt to customize the output'}
                 </Label>
                 <Textarea
@@ -154,6 +154,64 @@ export function StepFour({ details, prompt, onPromptChange, lang }: StepFourProp
               </Badge>
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Gemini 2.5 Flash Lite Specifications */}
+      <Card className="max-w-4xl mx-auto border-primary/20 bg-primary/5">
+        <CardHeader className="">
+          <div className="flex items-center gap-2">
+            <Zap className="w-5 h-5 text-primary" />
+            <CardTitle className="text-lg">
+              {lang === 'th' ? 'ใช้งาน Gemini 2.5 Flash Lite - ขอบเขตการสร้างผลลัพธ์' : 'Gemini 2.5 Flash Lite - Token Limits & Generation Config'}
+            </CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="flex flex-col gap-2 p-4 rounded-lg bg-background border">
+              <div className="flex items-center gap-2 mb-1">
+                <Info className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm font-medium text-muted-foreground">
+                  {lang === 'th' ? 'ข้อมูลนำเข้า (หน้าต่างบริบท)' : 'Input (Context Window)'}
+                </span>
+              </div>
+              <div className="text-2xl font-bold">
+                1,000,000
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {lang === 'th' ? 'tokens (1 ล้าน tokens)' : 'tokens (1 million tokens)'}
+              </div>
+            </div>
+            <div className="flex flex-col gap-2 p-4 rounded-lg bg-background border">
+              <div className="flex items-center gap-2 mb-1">
+                <Info className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm font-medium text-muted-foreground">
+                  {lang === 'th' ? 'ผลลัพธ์ (จำกัดการสร้าง)' : 'Output (Max Output)'}
+                </span>
+              </div>
+              <div className="text-2xl font-bold">
+                65,536
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {lang === 'th' ? 'tokens' : 'tokens'}
+              </div>
+            </div>
+            <div className="flex flex-col gap-2 p-4 rounded-lg bg-background border">
+              <div className="flex items-center gap-2 mb-1">
+                <Info className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm font-medium text-muted-foreground">
+                  {lang === 'th' ? 'ข้อมูลล่าสุด' : 'Knowledge Cutoff'}
+                </span>
+              </div>
+              <div className="text-2xl font-bold">
+                Jan 1, 2025
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {lang === 'th' ? 'ข้อมูลล่าสุด' : 'Latest data'}
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>
