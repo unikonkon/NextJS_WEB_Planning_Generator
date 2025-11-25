@@ -2,20 +2,22 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { 
-  FileText, 
-  Users, 
-  Target, 
-  ListChecks, 
-  Calendar, 
-  Wallet, 
+import {
+  FileText,
+  Users,
+  Target,
+  ListChecks,
+  Network,
+  Calendar,
+  Wallet,
   AlertTriangle,
-  Sparkles 
+  Sparkles
 } from 'lucide-react';
 import { RequirementsTab } from './RequirementsTab';
 import { PersonasTab } from './PersonasTab';
 import { CompetitorTab } from './CompetitorTab';
 import { ScopeTab } from './ScopeTab';
+import { SystemArchitectureTab } from './SystemArchitectureTab';
 import { TimelineTab } from './TimelineTab';
 import { BudgetTab } from './BudgetTab';
 import { RiskTab } from './RiskTab';
@@ -31,6 +33,7 @@ const tabs = [
   { id: 'personas', icon: Users, labelEn: 'Personas', labelTh: 'กลุ่มผู้ใช้' },
   { id: 'competitors', icon: Target, labelEn: 'Competitors', labelTh: 'คู่แข่ง' },
   { id: 'scope', icon: ListChecks, labelEn: 'Scope', labelTh: 'ขอบเขต' },
+  { id: 'architecture', icon: Network, labelEn: 'Architecture', labelTh: 'สถาปัตยกรรม' },
   { id: 'timeline', icon: Calendar, labelEn: 'Timeline', labelTh: 'ไทม์ไลน์' },
   { id: 'budget', icon: Wallet, labelEn: 'Budget', labelTh: 'งบประมาณ' },
   { id: 'risks', icon: AlertTriangle, labelEn: 'Risks', labelTh: 'ความเสี่ยง' },
@@ -84,6 +87,11 @@ export function ResultsDisplay({ plan, lang }: ResultsDisplayProps) {
         </TabsList>
 
         <div className="mt-6">
+
+          <TabsContent value="architecture" className="m-0">
+            <SystemArchitectureTab architecture={plan.systemArchitecture} lang={lang} />
+          </TabsContent>
+
           <TabsContent value="requirements" className="m-0">
             <RequirementsTab requirements={plan.requirements} lang={lang} />
           </TabsContent>

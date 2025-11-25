@@ -16,7 +16,7 @@ export function buildPrompt(details: ProjectDetails): string {
   const targetAudienceName = details.outputLanguage === 'th' ? targetAudience?.nameTh : targetAudience?.name;
   const timelineName = details.outputLanguage === 'th' ? timeline?.nameTh : timeline?.name;
 
-  return `You are an expert software project planner and business analyst. Generate a comprehensive project discovery and planning document.
+  return `You are an expert software project planner, business analyst, and solution architect. Generate a comprehensive project discovery and planning document.
 
 PROJECT DETAILS:
 - Project Name: ${details.projectName || 'Unnamed Project'}
@@ -117,6 +117,226 @@ Generate a JSON response with the following structure. Be detailed and specific 
       "items": ["List 3-4 features explicitly out of scope"]
     }
   },
+  "systemArchitecture": {
+    "overview": {
+      "title": "Architecture Overview",
+      "description": "High-level description of the system architecture approach",
+      "architectureType": "Monolithic/Microservices/Serverless/Hybrid",
+      "architecturePattern": "MVC/Clean Architecture/Hexagonal/Event-Driven/etc.",
+      "deploymentModel": "Cloud/On-Premise/Hybrid",
+      "cloudProvider": "AWS/GCP/Azure/Vercel/etc. (if applicable)",
+      "diagram": {
+        "description": "Text description of the high-level architecture diagram",
+        "layers": [
+          {
+            "name": "Presentation Layer",
+            "description": "User interface and client applications",
+            "technologies": ["Next.js", "React", "Tailwind CSS"]
+          },
+          {
+            "name": "Application Layer",
+            "description": "Business logic and API services",
+            "technologies": ["Node.js", "Express/NestJS"]
+          },
+          {
+            "name": "Data Layer",
+            "description": "Data storage and persistence",
+            "technologies": ["PostgreSQL", "Redis", "S3"]
+          },
+          {
+            "name": "Infrastructure Layer",
+            "description": "Cloud services and deployment",
+            "technologies": ["Docker", "Kubernetes", "CI/CD"]
+          }
+        ]
+      },
+      "keyDecisions": ["List 3-5 key architectural decisions and rationale"]
+    },
+    "components": {
+      "title": "Logical View & Components",
+      "frontendComponents": [
+        {
+          "name": "Component Name",
+          "description": "What this component does",
+          "responsibilities": ["Responsibility 1", "Responsibility 2"],
+          "technologies": ["React", "etc."],
+          "dependencies": ["Other components it depends on"]
+        }
+      ],
+      "backendServices": [
+        {
+          "name": "Service Name",
+          "description": "What this service does",
+          "responsibilities": ["Responsibility 1", "Responsibility 2"],
+          "technologies": ["Node.js", "etc."],
+          "dependencies": ["Database", "External APIs"]
+        }
+      ],
+      "externalServices": [
+        {
+          "name": "External Service Name",
+          "purpose": "What it's used for",
+          "provider": "Provider name",
+          "integrationMethod": "REST API/SDK/Webhook"
+        }
+      ],
+      "databases": [
+        {
+          "name": "Database Name",
+          "type": "Relational/NoSQL/Cache/Search",
+          "technology": "PostgreSQL/MongoDB/Redis/Elasticsearch",
+          "purpose": "What data it stores"
+        }
+      ]
+    },
+    "apiDesign": {
+      "title": "API Design & Communication Contracts",
+      "apiStyle": "REST/GraphQL/gRPC/WebSocket",
+      "apiVersioning": "URL versioning/Header versioning",
+      "authenticationMethod": "JWT/OAuth2/API Key/Session",
+      "endpoints": [
+        {
+          "module": "Module Name (e.g., Authentication, Users, Products)",
+          "baseUrl": "/api/v1/module",
+          "endpoints": [
+            {
+              "method": "GET/POST/PUT/DELETE",
+              "path": "/endpoint-path",
+              "description": "What this endpoint does",
+              "authentication": "Required/Optional/None",
+              "requestBody": "Brief description of request payload (if any)",
+              "responseFormat": "Brief description of response format"
+            }
+          ]
+        }
+      ],
+      "errorHandling": {
+        "format": "Standard error response format description",
+        "commonCodes": [
+          {
+            "code": "400",
+            "meaning": "Bad Request - Invalid input"
+          },
+          {
+            "code": "401",
+            "meaning": "Unauthorized - Authentication required"
+          },
+          {
+            "code": "403",
+            "meaning": "Forbidden - Insufficient permissions"
+          },
+          {
+            "code": "404",
+            "meaning": "Not Found - Resource doesn't exist"
+          },
+          {
+            "code": "500",
+            "meaning": "Internal Server Error"
+          }
+        ]
+      },
+      "rateLimiting": {
+        "enabled": true,
+        "limits": "Description of rate limiting rules"
+      }
+    },
+    "dataModel": {
+      "title": "Data Model & Schema Overview",
+      "description": "Overview of the data modeling approach",
+      "entities": [
+        {
+          "name": "Entity Name",
+          "description": "What this entity represents",
+          "attributes": [
+            {
+              "name": "attribute_name",
+              "type": "string/number/boolean/date/relation",
+              "required": true,
+              "description": "What this attribute stores"
+            }
+          ],
+          "relationships": [
+            {
+              "relatedEntity": "Related Entity Name",
+              "type": "one-to-one/one-to-many/many-to-many",
+              "description": "Description of the relationship"
+            }
+          ],
+          "indexes": ["List of indexed fields for performance"]
+        }
+      ],
+      "dataFlowDescription": "Description of how data flows through the system",
+      "cacheStrategy": {
+        "description": "Caching approach description",
+        "cachedData": ["Types of data that will be cached"],
+        "invalidationStrategy": "How cache invalidation is handled"
+      }
+    },
+    "keyFlows": {
+      "title": "Key Flows & Sequences",
+      "flows": [
+        {
+          "name": "Flow Name (e.g., User Registration, Order Checkout)",
+          "description": "What this flow accomplishes",
+          "actors": ["User", "System", "External Service"],
+          "steps": [
+            {
+              "step": 1,
+              "actor": "Who performs this step",
+              "action": "What action is taken",
+              "system": "Which system/component handles it",
+              "description": "Detailed description of what happens"
+            }
+          ],
+          "alternativeFlows": ["Description of alternative paths or error cases"],
+          "businessRules": ["Business rules that apply to this flow"]
+        }
+      ]
+    },
+    "security": {
+      "title": "Security Architecture",
+      "overview": "Overall security approach and principles",
+      "authentication": {
+        "method": "JWT/OAuth2/Session/etc.",
+        "implementation": "Description of how authentication is implemented",
+        "tokenManagement": "How tokens are issued, refreshed, and revoked",
+        "sessionManagement": "Session handling approach"
+      },
+      "authorization": {
+        "model": "RBAC/ABAC/ACL",
+        "roles": [
+          {
+            "name": "Role Name",
+            "description": "What this role can do",
+            "permissions": ["List of permissions"]
+          }
+        ],
+        "implementation": "How authorization is enforced"
+      },
+      "dataProtection": {
+        "encryptionAtRest": "How data is encrypted in storage",
+        "encryptionInTransit": "How data is protected during transmission",
+        "sensitiveDataHandling": "How PII and sensitive data is handled",
+        "dataRetention": "Data retention and deletion policies"
+      },
+      "securityMeasures": [
+        {
+          "category": "Input Validation/XSS Prevention/CSRF Protection/SQL Injection/etc.",
+          "implementation": "How this is implemented",
+          "tools": ["Libraries or tools used"]
+        }
+      ],
+      "compliance": {
+        "standards": ["PDPA", "GDPR", "PCI-DSS", "etc. - as applicable"],
+        "requirements": ["Specific compliance requirements to address"]
+      },
+      "monitoring": {
+        "logging": "What is logged and how",
+        "alerting": "Security alerting approach",
+        "auditTrail": "Audit trail implementation"
+      }
+    }
+  },
   "timeline": {
     "phases": [
       {
@@ -206,6 +426,17 @@ Generate a JSON response with the following structure. Be detailed and specific 
   }
 }
 
+SYSTEM ARCHITECTURE GENERATION GUIDELINES:
+1. Choose appropriate architecture type based on project complexity and budget
+2. For simple projects (budget < 200,000): Recommend Monolithic with Next.js full-stack
+3. For medium projects: Consider modular monolith or simple microservices
+4. For complex projects (budget > 500,000): Recommend microservices if appropriate
+5. Always include security best practices appropriate for the project type
+6. Generate 3-5 main entities for the data model based on selected features
+7. Create 2-4 key flows that represent the most important user journeys
+8. Design API endpoints that cover all selected features
+9. Include appropriate security measures based on the target audience (especially for B2B/Government)
+
 Ensure the budget breakdown adds up to approximately 100% and stays within the provided budget range.
 Make the timeline realistic based on the features selected and the timeline constraint.
 Generate 5-7 risks covering technical, business, resource, and external categories.
@@ -225,9 +456,9 @@ export function parseGeneratedPlan(json: string, details: ProjectDetails): Gener
     personas: parsed.personas,
     competitorAnalysis: parsed.competitorAnalysis,
     scope: parsed.scope,
+    systemArchitecture: parsed.systemArchitecture,
     timeline: parsed.timeline,
     budget: parsed.budget,
     risks: parsed.risks,
   };
 }
-

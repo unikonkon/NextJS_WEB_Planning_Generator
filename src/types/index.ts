@@ -154,6 +154,227 @@ export interface RiskAssessment {
   recommendations: string[];
 }
 
+// System Architecture Types
+export interface ArchitectureLayer {
+  name: string;
+  description: string;
+  technologies: string[];
+}
+
+export interface ArchitectureDiagram {
+  description: string;
+  layers: ArchitectureLayer[];
+}
+
+export interface ArchitectureOverview {
+  title: string;
+  description: string;
+  architectureType: string;
+  architecturePattern: string;
+  deploymentModel: string;
+  cloudProvider?: string;
+  diagram: ArchitectureDiagram;
+  keyDecisions: string[];
+}
+
+export interface FrontendComponent {
+  name: string;
+  description: string;
+  responsibilities: string[];
+  technologies: string[];
+  dependencies: string[];
+}
+
+export interface BackendService {
+  name: string;
+  description: string;
+  responsibilities: string[];
+  technologies: string[];
+  dependencies: string[];
+}
+
+export interface ExternalService {
+  name: string;
+  purpose: string;
+  provider: string;
+  integrationMethod: string;
+}
+
+export interface Database {
+  name: string;
+  type: string;
+  technology: string;
+  purpose: string;
+}
+
+export interface ComponentsSection {
+  title: string;
+  frontendComponents: FrontendComponent[];
+  backendServices: BackendService[];
+  externalServices: ExternalService[];
+  databases: Database[];
+}
+
+export interface APIEndpoint {
+  method: string;
+  path: string;
+  description: string;
+  authentication: string;
+  requestBody?: string;
+  responseFormat?: string;
+}
+
+export interface APIModule {
+  module: string;
+  baseUrl: string;
+  endpoints: APIEndpoint[];
+}
+
+export interface ErrorCode {
+  code: string;
+  meaning: string;
+}
+
+export interface ErrorHandling {
+  format: string;
+  commonCodes: ErrorCode[];
+}
+
+export interface RateLimiting {
+  enabled: boolean;
+  limits: string;
+}
+
+export interface APIDesign {
+  title: string;
+  apiStyle: string;
+  apiVersioning: string;
+  authenticationMethod: string;
+  endpoints: APIModule[];
+  errorHandling: ErrorHandling;
+  rateLimiting: RateLimiting;
+}
+
+export interface Attribute {
+  name: string;
+  type: string;
+  required: boolean;
+  description: string;
+}
+
+export interface Relationship {
+  relatedEntity: string;
+  type: string;
+  description: string;
+}
+
+export interface Entity {
+  name: string;
+  description: string;
+  attributes: Attribute[];
+  relationships: Relationship[];
+  indexes: string[];
+}
+
+export interface CacheStrategy {
+  description: string;
+  cachedData: string[];
+  invalidationStrategy: string;
+}
+
+export interface DataModel {
+  title: string;
+  description: string;
+  entities: Entity[];
+  dataFlowDescription: string;
+  cacheStrategy: CacheStrategy;
+}
+
+export interface FlowStep {
+  step: number;
+  actor: string;
+  action: string;
+  system: string;
+  description: string;
+}
+
+export interface KeyFlow {
+  name: string;
+  description: string;
+  actors: string[];
+  steps: FlowStep[];
+  alternativeFlows: string[];
+  businessRules: string[];
+}
+
+export interface KeyFlows {
+  title: string;
+  flows: KeyFlow[];
+}
+
+export interface AuthenticationConfig {
+  method: string;
+  implementation: string;
+  tokenManagement: string;
+  sessionManagement: string;
+}
+
+export interface Role {
+  name: string;
+  description: string;
+  permissions: string[];
+}
+
+export interface AuthorizationConfig {
+  model: string;
+  roles: Role[];
+  implementation: string;
+}
+
+export interface DataProtection {
+  encryptionAtRest: string;
+  encryptionInTransit: string;
+  sensitiveDataHandling: string;
+  dataRetention: string;
+}
+
+export interface SecurityMeasure {
+  category: string;
+  implementation: string;
+  tools: string[];
+}
+
+export interface Compliance {
+  standards: string[];
+  requirements: string[];
+}
+
+export interface SecurityMonitoring {
+  logging: string;
+  alerting: string;
+  auditTrail: string;
+}
+
+export interface SecurityArchitecture {
+  title: string;
+  overview: string;
+  authentication: AuthenticationConfig;
+  authorization: AuthorizationConfig;
+  dataProtection: DataProtection;
+  securityMeasures: SecurityMeasure[];
+  compliance: Compliance;
+  monitoring: SecurityMonitoring;
+}
+
+export interface SystemArchitecture {
+  overview: ArchitectureOverview;
+  components: ComponentsSection;
+  apiDesign: APIDesign;
+  dataModel: DataModel;
+  keyFlows: KeyFlows;
+  security: SecurityArchitecture;
+}
+
 export interface GeneratedPlan {
   id: string;
   projectName: string;
@@ -163,6 +384,7 @@ export interface GeneratedPlan {
   personas: UserPersona[];
   competitorAnalysis: CompetitorAnalysis;
   scope: MoSCoWScope;
+  systemArchitecture: SystemArchitecture;
   timeline: TimelineMilestone;
   budget: BudgetEstimation;
   risks: RiskAssessment;

@@ -16,19 +16,18 @@ export async function generateWithGemini(prompt: string): Promise<string> {
   const model = genAI.getGenerativeModel({ 
     model: 'gemini-2.5-flash-lite',  // ✅ เปลี่ยนจาก 'gemini-1.5-flash'
     generationConfig: {
-      temperature: 0.7,
-      topP: 0.95,
-      topK: 40,
-      maxOutputTokens: 8192,
+      // ===== สำหรับ JSON Generation =====
+      temperature: 0.2,           // ต่ำ = แม่นยำ, สูง = creative
+      topP: 0.95,                 // Nucleus sampling
+      topK: 40,                   // Top-K sampling (Gemini 2.5 fixed at 64)
+      maxOutputTokens: 16384,     // เพียงพอสำหรับ JSON ขนาดใหญ่
+      responseMimeType: 'application/json',  // บังคับ output เป็น JSON
     }
   });
-  console.log('prompt', prompt);
 
   const result = await model.generateContent(prompt);
   const response = result.response;
   const text = response.text();
-  console.log('response', response);
-  console.log('text', text);
   
   return text;
 }
