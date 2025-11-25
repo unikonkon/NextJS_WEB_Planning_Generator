@@ -1,0 +1,1 @@
+# NextJS_WEB_Planning_Generator
