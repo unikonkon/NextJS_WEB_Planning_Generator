@@ -1,611 +1,530 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
+import Link from 'next/link';
+import { useEffect, useState, useRef } from 'react';
 import { 
+  GitBranch, 
   Sparkles, 
-  ChevronLeft, 
-  ChevronRight, 
-  Rocket, 
-  Loader2,
-  Globe,
-  AlertCircle,
+  ArrowRight, 
+  Zap,
   FileText,
-  Copy,
-  Check,
-  History
+  Layers,
+  Code2,
+  Rocket,
+  ChevronRight,
+  Globe,
+  LayoutGrid,
+  Database,
+  Users,
+  Clock,
+  Shield,
+  TrendingUp
 } from 'lucide-react';
-import { WizardProgress, StepOne, StepTwo, StepThree, StepFour } from '@/components/wizard';
-import { ResultsDisplay } from '@/components/results';
-import { ExportButtons } from '@/components/export';
-import { DEFAULT_PROJECT_DETAILS } from '@/data/constants';
-import { saveDraft, loadDraft, clearDraft } from '@/lib/storage';
-import { buildPrompt } from '@/lib/prompt-builder';
-import { saveGeneration } from '@/lib/indexeddb';
-import type { ProjectDetails, GeneratedPlan, WebsiteTypeId } from '@/types';
+import { Button } from '@/components/ui/button';
 
-const WIZARD_LABELS = [
-  { en: 'Website Type', th: 'ประเภทเว็บ' },
-  { en: 'Features', th: 'ฟีเจอร์' },
-  { en: 'Details', th: 'รายละเอียด' },
-  { en: 'Prompt', th: 'Prompt' },
-];
-
-export default function Home() {
-  const router = useRouter();
-  const [currentStep, setCurrentStep] = useState(1);
-  const [details, setDetails] = useState<ProjectDetails>(DEFAULT_PROJECT_DETAILS);
-  const [generatedPlan, setGeneratedPlan] = useState<GeneratedPlan | null>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [uiLang, setUiLang] = useState<'en' | 'th'>('th');
-  const [customPrompt, setCustomPrompt] = useState<string>('');
-  const [rawResponse, setRawResponse] = useState<string | null>(null);
-  const [showRawResponse, setShowRawResponse] = useState(false);
-  const [copiedRaw, setCopiedRaw] = useState(false);
-
-  // Load draft on mount
+// Animated background particles
+function ParticleField() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  
   useEffect(() => {
-    const draft = loadDraft();
-    if (draft) {
-      setDetails(draft.details);
-    }
-  }, []);
-
-  // Auto-save draft
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (details.websiteType || details.selectedFeatures.length > 0) {
-        saveDraft(details);
-      }
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, [details]);
-
-  // Update prompt when entering step 4
-  useEffect(() => {
-    if (currentStep === 4 && !customPrompt) {
-      setCustomPrompt(buildPrompt(details));
-    }
-  }, [currentStep, details, customPrompt]);
-
-  const handleSelectType = useCallback((typeId: WebsiteTypeId, defaultFeatures: string[]) => {
-    setDetails(prev => ({
-      ...prev,
-      websiteType: typeId,
-      selectedFeatures: defaultFeatures,
-    }));
-    // Reset prompt when type changes
-    setCustomPrompt('');
-  }, []);
-
-  const handleToggleFeature = useCallback((featureId: string) => {
-    setDetails(prev => ({
-      ...prev,
-      selectedFeatures: prev.selectedFeatures.includes(featureId)
-        ? prev.selectedFeatures.filter(f => f !== featureId)
-        : [...prev.selectedFeatures, featureId],
-    }));
-    // Reset prompt when features change
-    setCustomPrompt('');
-  }, []);
-
-  const handleUpdateDetails = useCallback((updates: Partial<ProjectDetails>) => {
-    setDetails(prev => ({ ...prev, ...updates }));
-    // Reset prompt when details change
-    setCustomPrompt('');
-  }, []);
-
-  const handleGenerate = async () => {
-    setIsGenerating(true);
-    setError(null);
-    setRawResponse(null);
-    setShowRawResponse(false);
+    const canvas = canvasRef.current;
+    if (!canvas) return;
     
-    try {
-      const response = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          projectDetails: details,
-          customPrompt: customPrompt || undefined,
-        }),
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize);
+    
+    const particles: { x: number; y: number; vx: number; vy: number; size: number; opacity: number }[] = [];
+    for (let i = 0; i < 50; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        size: Math.random() * 2 + 1,
+        opacity: Math.random() * 0.5 + 0.1,
+      });
+    }
+    
+    let animationId: number;
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      particles.forEach((p) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        
+        if (p.x < 0) p.x = canvas.width;
+        if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height;
+        if (p.y > canvas.height) p.y = 0;
+        
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(147, 51, 234, ${p.opacity})`;
+        ctx.fill();
       });
       
-      const data = await response.json();
-      
-      // Store raw response if available
-      if (data.rawResponse) {
-        setRawResponse(data.rawResponse);
-      }
-      
-      if (!data.success) {
-        // If we have raw response but parsing failed, show it
-        if (data.rawResponse) {
-          setShowRawResponse(true);
-          setError(data.error || 'Failed to parse response');
-        } else {
-          throw new Error(data.error || 'Failed to generate plan');
-        }
-        return;
-      }
-      
-      setGeneratedPlan(data.plan);
-      clearDraft();
-      
-      // Save to IndexedDB
-      try {
-        await saveGeneration({
-          projectDetails: details,
-          generatedPlan: data.plan,
-          rawResponse: data.rawResponse,
-          customPrompt: customPrompt || undefined,
+      // Draw connections
+      particles.forEach((p1, i) => {
+        particles.slice(i + 1).forEach((p2) => {
+          const dx = p1.x - p2.x;
+          const dy = p1.y - p2.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          
+          if (dist < 150) {
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = `rgba(147, 51, 234, ${0.1 * (1 - dist / 150)})`;
+            ctx.stroke();
+          }
         });
-      } catch (dbError) {
-        console.error('Failed to save to IndexedDB:', dbError);
-        // Don't show error to user, just log it
+      });
+      
+      animationId = requestAnimationFrame(animate);
+    };
+    animate();
+    
+    return () => {
+      window.removeEventListener('resize', resize);
+      cancelAnimationFrame(animationId);
+    };
+  }, []);
+  
+  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none" />;
+}
+
+// Animated typing effect
+function TypewriterText({ texts, className }: { texts: string[]; className?: string }) {
+  const [currentTextIndex, setCurrentTextIndex] = useState(0);
+  const [currentText, setCurrentText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+  
+  useEffect(() => {
+    const targetText = texts[currentTextIndex];
+    const typingSpeed = isDeleting ? 30 : 80;
+    
+    const timeout = setTimeout(() => {
+      if (!isDeleting) {
+        if (currentText.length < targetText.length) {
+          setCurrentText(targetText.slice(0, currentText.length + 1));
+        } else {
+          setTimeout(() => setIsDeleting(true), 2000);
+        }
+      } else {
+        if (currentText.length > 0) {
+          setCurrentText(currentText.slice(0, -1));
+        } else {
+          setIsDeleting(false);
+          setCurrentTextIndex((prev) => (prev + 1) % texts.length);
+        }
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const handleRegenerate = () => {
-    handleGenerate();
-  };
-
-  const handleReset = () => {
-    setGeneratedPlan(null);
-    setCurrentStep(1);
-    setDetails(DEFAULT_PROJECT_DETAILS);
-    setError(null);
-    setCustomPrompt('');
-    setRawResponse(null);
-    setShowRawResponse(false);
-  };
-
-  const handleCopyRaw = async () => {
-    if (rawResponse) {
-      await navigator.clipboard.writeText(rawResponse);
-      setCopiedRaw(true);
-      setTimeout(() => setCopiedRaw(false), 2000);
-    }
-  };
-
-  const canProceed = () => {
-    switch (currentStep) {
-      case 1:
-        return !!details.websiteType;
-      case 2:
-        return details.selectedFeatures.length > 0;
-      case 3:
-        return true;
-      case 4:
-        return customPrompt.trim().length > 0;
-      default:
-        return false;
-    }
-  };
-
-  const canNavigateToStep = (step: number) => {
-    // Allow navigation to step 1 always
-    if (step === 1) return true;
+    }, typingSpeed);
     
-    // For step 2, need website type selected
-    if (step === 2) return !!details.websiteType;
-    
-    // For step 3, need website type and at least one feature
-    if (step === 3) return !!details.websiteType && details.selectedFeatures.length > 0;
-    
-    // For step 4, need website type and at least one feature
-    if (step === 4) return !!details.websiteType && details.selectedFeatures.length > 0;
-    
-    return false;
-  };
+    return () => clearTimeout(timeout);
+  }, [currentText, isDeleting, texts, currentTextIndex]);
+  
+  return (
+    <span className={className}>
+      {currentText}
+      <span className="animate-pulse">|</span>
+    </span>
+  );
+}
 
-  const handleStepClick = (step: number) => {
-    if (canNavigateToStep(step)) {
-      setCurrentStep(step);
-    }
-  };
-
-  // If plan is generated, show results
-  if (generatedPlan) {
-    return (
-      <main className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-        <div className="container mx-auto px-4 py-8 max-w-6xl">
-          {/* Header */}
-          <header className="flex items-center justify-between mb-8">
-            <Button variant="ghost" onClick={handleReset} className="gap-2">
-              <ChevronLeft className="w-4 h-4" />
-              {uiLang === 'th' ? 'สร้างใหม่' : 'Start New'}
-            </Button>
-            <div className="flex items-center gap-4">
-              <Button
-                variant="outline"
-                onClick={() => router.push('/history')}
-                className="gap-2"
-              >
-                <History className="w-4 h-4" />
-                {uiLang === 'th' ? 'ประวัติ' : 'History'}
-              </Button>
-              <div className="flex items-center gap-2">
-                <Globe className="w-4 h-4 text-muted-foreground" />
-                <Label className="text-sm">EN</Label>
-                <Switch
-                  checked={uiLang === 'th'}
-                  onCheckedChange={(checked) => setUiLang(checked ? 'th' : 'en')}
-                />
-                <Label className="text-sm">TH</Label>
-              </div>
-            </div>
-          </header>
-
-          {/* Results */}
-          <ResultsDisplay plan={generatedPlan} lang={details.outputLanguage} />
-          
-          {/* Raw Response Section */}
-          {rawResponse && (
-            <Card className="mt-8">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-muted-foreground" />
-                    <CardTitle className="text-lg">
-                      {uiLang === 'th' ? 'Raw Response จาก AI' : 'Raw AI Response'}
-                    </CardTitle>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowRawResponse(!showRawResponse)}
-                    >
-                      {showRawResponse 
-                        ? (uiLang === 'th' ? 'ซ่อน' : 'Hide')
-                        : (uiLang === 'th' ? 'แสดง' : 'Show')}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleCopyRaw}
-                      className="gap-2"
-                    >
-                      {copiedRaw ? (
-                        <>
-                          <Check className="w-4 h-4 text-green-500" />
-                          {uiLang === 'th' ? 'คัดลอกแล้ว!' : 'Copied!'}
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4" />
-                          {uiLang === 'th' ? 'คัดลอก' : 'Copy'}
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </div>
-              </CardHeader>
-              {showRawResponse && (
-                <CardContent>
-                  <pre className="p-4 bg-muted/50 rounded-lg overflow-auto max-h-[600px] text-sm font-mono whitespace-pre-wrap break-words leading-relaxed border">
-                    {rawResponse}
-                  </pre>
-                </CardContent>
-              )}
-            </Card>
-          )}
-          
-          {/* Export Buttons */}
-          <div className="mt-8">
-            <ExportButtons 
-              plan={generatedPlan} 
-              lang={details.outputLanguage}
-              onRegenerate={handleRegenerate}
-              isRegenerating={isGenerating}
-            />
-          </div>
-        </div>
-      </main>
-    );
-  }
-
-  // Show raw response view when parsing failed
-  if (showRawResponse && rawResponse && error) {
-    return (
-      <main className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-        <div className="container mx-auto px-4 py-8 max-w-5xl">
-          {/* Header */}
-          <header className="flex items-center justify-between mb-8">
-            <Button variant="ghost" onClick={handleReset} className="gap-2">
-              <ChevronLeft className="w-4 h-4" />
-              {uiLang === 'th' ? 'เริ่มใหม่' : 'Start Over'}
-            </Button>
-            <div className="flex items-center gap-4">
-              <Button
-                variant="outline"
-                onClick={() => router.push('/history')}
-                className="gap-2"
-              >
-                <History className="w-4 h-4" />
-                {uiLang === 'th' ? 'ประวัติ' : 'History'}
-              </Button>
-              <div className="flex items-center gap-2">
-                <Globe className="w-4 h-4 text-muted-foreground" />
-                <Label className="text-sm">EN</Label>
-                <Switch
-                  checked={uiLang === 'th'}
-                  onCheckedChange={(checked) => setUiLang(checked ? 'th' : 'en')}
-                />
-                <Label className="text-sm">TH</Label>
-              </div>
-            </div>
-          </header>
-
-          {/* Error Message */}
-          <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5" />
-            <div>
-              <p className="font-medium text-amber-800 dark:text-amber-200">
-                {uiLang === 'th' ? 'ไม่สามารถ Parse JSON ได้' : 'Could not parse JSON'}
-              </p>
-              <p className="text-sm text-amber-700 dark:text-amber-300">{error}</p>
-            </div>
-          </div>
-
-          {/* Raw Response */}
-          <Card>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-primary" />
-                  <CardTitle className="text-lg">
-                    {uiLang === 'th' ? 'Raw Response จาก AI' : 'Raw AI Response'}
-                  </CardTitle>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="font-mono text-xs">
-                    {rawResponse.length.toLocaleString()} chars
-                  </Badge>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleCopyRaw}
-                    className="gap-2"
-                  >
-                    {copiedRaw ? (
-                      <>
-                        <Check className="w-4 h-4 text-green-500" />
-                        {uiLang === 'th' ? 'คัดลอกแล้ว!' : 'Copied!'}
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-4 h-4" />
-                        {uiLang === 'th' ? 'คัดลอก' : 'Copy'}
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <pre className="p-4 bg-muted/50 rounded-lg overflow-auto max-h-[600px] text-sm font-mono whitespace-pre-wrap break-words leading-relaxed border">
-                {rawResponse}
-              </pre>
-            </CardContent>
-          </Card>
-
-          {/* Actions */}
-          <div className="flex justify-center gap-4 mt-8">
-            <Button variant="outline" onClick={() => setCurrentStep(4)} className="gap-2">
-              <ChevronLeft className="w-4 h-4" />
-              {uiLang === 'th' ? 'กลับไปแก้ไข Prompt' : 'Back to Edit Prompt'}
-            </Button>
-            <Button onClick={handleGenerate} disabled={isGenerating} className="gap-2">
-              {isGenerating ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  {uiLang === 'th' ? 'กำลังสร้างใหม่...' : 'Regenerating...'}
-                </>
-              ) : (
-                <>
-                  <Rocket className="w-4 h-4" />
-                  {uiLang === 'th' ? 'ลองใหม่' : 'Try Again'}
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
-      </main>
-    );
-  }
+export default function HomePage() {
+  const [isLoaded, setIsLoaded] = useState(false);
+  
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-      <div className="container mx-auto px-4 py-8 max-w-5xl">
-        {/* Header */}
-        <header className="text-center mb-8">
-          {/* <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="p-3 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5">
-              <Sparkles className="w-8 h-8 text-primary" />
+    <div className="min-h-screen bg-[#0a0a0a] text-white overflow-hidden">
+      <ParticleField />
+      
+      {/* Navigation */}
+      <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-black/30 border-b border-white/5">
+        <div className="container mx-auto px-6 h-16 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="relative">
+              <div className="absolute inset-0 bg-purple-500 blur-lg opacity-50 group-hover:opacity-75 transition-opacity" />
+              <Zap className="size-7 text-purple-400 relative" />
             </div>
-          </div> */}
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-2">
-            {uiLang === 'th' 
-              ? 'AI-Powered Discovery & Planning' 
-              : 'AI-Powered Discovery & Planning'}
-          </h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            {uiLang === 'th'
-              ? 'สร้างเอกสาร Discovery และแผนโปรเจคอัตโนมัติด้วย AI ครบทุกด้าน ตั้งแต่ Requirements จนถึง Risk Assessment'
-              : 'Generate comprehensive project discovery documents automatically with AI - from Requirements to Risk Assessment'}
-          </p>
+            <span className="font-bold text-xl tracking-tight">PlannerAI</span>
+          </Link>
           
-          {/* Language Toggle & History */}
-          <div className="flex items-center justify-center gap-4 mt-4">
-            <Button
-              variant="outline"
-              onClick={() => router.push('/history')}
-              className="gap-2"
-            >
-              <History className="w-4 h-4" />
-              {uiLang === 'th' ? 'ดูประวัติ' : 'View History'}
-            </Button>
-            <div className="flex items-center gap-2">
-              <Globe className="w-4 h-4 text-muted-foreground" />
-              <Label className="text-sm">EN</Label>
-              <Switch
-                checked={uiLang === 'th'}
-                onCheckedChange={(checked) => setUiLang(checked ? 'th' : 'en')}
-              />
-              <Label className="text-sm">TH</Label>
-            </div>
+          <div className="hidden md:flex items-center gap-8">
+            <Link href="/flowchart" className="text-sm text-gray-400 hover:text-white transition-colors">
+              Flowchart
+            </Link>
+            <Link href="/generate" className="text-sm text-gray-400 hover:text-white transition-colors">
+              Discovery
+            </Link>
+            <Link href="/history" className="text-sm text-gray-400 hover:text-white transition-colors">
+              History
+            </Link>
           </div>
-        </header>
-
-        {/* Progress */}
-        <WizardProgress 
-          currentStep={currentStep} 
-          totalSteps={4} 
-          labels={WIZARD_LABELS}
-          lang={uiLang}
-          onStepClick={handleStepClick}
-          canNavigateToStep={canNavigateToStep}
-        />
-
-        {/* Wizard Content */}
-        <Card className="mb-8">
-          <CardContent className="pt-6">
-            {currentStep === 1 && (
-              <StepOne 
-                selectedType={details.websiteType}
-                onSelectType={handleSelectType}
-                lang={uiLang}
-              />
-            )}
-            {currentStep === 2 && (
-              <StepTwo
-                websiteType={details.websiteType}
-                selectedFeatures={details.selectedFeatures}
-                onToggleFeature={handleToggleFeature}
-                lang={uiLang}
-              />
-            )}
-            {currentStep === 3 && (
-              <StepThree
-                details={details}
-                onUpdateDetails={handleUpdateDetails}
-                lang={uiLang}
-              />
-            )}
-            {currentStep === 4 && (
-              <StepFour
-                details={details}
-                prompt={customPrompt || buildPrompt(details)}
-                onPromptChange={setCustomPrompt}
-                lang={uiLang}
-              />
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Error Message */}
-        {error && !showRawResponse && (
-          <div className="mb-6 p-4 bg-destructive/10 border border-destructive/30 rounded-lg flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-destructive mt-0.5" />
-            <div>
-              <p className="font-medium text-destructive">
-                {uiLang === 'th' ? 'เกิดข้อผิดพลาด' : 'Error'}
-              </p>
-              <p className="text-sm text-muted-foreground">{error}</p>
-            </div>
-          </div>
-        )}
-
-        {/* Navigation */}
-        <div className="flex justify-between items-center">
-          <Button
-            variant="outline"
-            onClick={() => setCurrentStep(prev => prev - 1)}
-            disabled={currentStep === 1}
-            className="gap-2"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            {uiLang === 'th' ? 'ย้อนกลับ' : 'Back'}
-          </Button>
-
-          {currentStep < 4 ? (
-            <Button
-              onClick={() => setCurrentStep(prev => prev + 1)}
-              disabled={!canProceed()}
-              className="gap-2"
-            >
-              {uiLang === 'th' ? 'ถัดไป' : 'Next'}
-              <ChevronRight className="w-4 h-4" />
+          
+          {/* <Link href="/generate">
+            <Button className="bg-white text-black hover:bg-gray-200 rounded-full px-6 text-sm font-medium">
+              เริ่มต้นใช้งาน
             </Button>
-          ) : (
-            <Button
-              onClick={handleGenerate}
-              disabled={!canProceed() || isGenerating}
-              className="gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
-              size="lg"
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  {uiLang === 'th' ? 'กำลังสร้าง...' : 'Generating...'}
-                </>
-              ) : (
-                <>
-                  <Rocket className="w-4 h-4" />
-                  {uiLang === 'th' ? 'สร้าง Discovery & Planning' : 'Generate Discovery & Planning'}
-                </>
-              )}
-            </Button>
-          )}
+          </Link> */}
         </div>
+      </nav>
 
-        {/* Loading Overlay */}
-        {isGenerating && (
-          <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50">
-            <Card className="w-full max-w-md mx-4">
-              <CardContent className="pt-6 text-center space-y-4">
-                <div className="relative mx-auto w-20 h-20">
-                  <div className="absolute inset-0 rounded-full border-4 border-primary/20" />
-                  <div className="absolute inset-0 rounded-full border-4 border-primary border-t-transparent animate-spin" />
-                  <Sparkles className="absolute inset-0 m-auto w-8 h-8 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg">
-                    {uiLang === 'th' ? 'AI กำลังวิเคราะห์และสร้างแผน' : 'AI is analyzing and generating your plan'}
-                  </h3>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    {uiLang === 'th' 
-                      ? 'กรุณารอสักครู่ ประมาณ 10-30 วินาที...'
-                      : 'Please wait, approximately 10-30 seconds...'}
-                  </p>
-                </div>
-                <div className="flex justify-center gap-1">
-                  {[0, 1, 2].map((i) => (
-                    <div
-                      key={i}
-                      className="w-2 h-2 rounded-full bg-primary animate-bounce"
-                      style={{ animationDelay: `${i * 0.15}s` }}
-                    />
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+      {/* Hero Section */}
+      <section className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-16">
+        {/* Gradient orbs */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-[128px] animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-600/20 rounded-full blur-[128px] animate-pulse" style={{ animationDelay: '1s' }} />
+        
+        <div 
+          className={`relative z-10 text-center max-w-5xl transition-all duration-1000 ${
+            isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+          }`}
+        >
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8">
+            {/* <Sparkles className="size-4 text-purple-400" /> */}
+            <span className="text-sm text-gray-300">Powered by Gemini AI</span>
           </div>
-        )}
-      </div>
-    </main>
+          
+          {/* Main Heading */}
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6">
+            <span className="bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">
+              Plan Your
+            </span>
+            <br />
+            <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-purple-600 bg-clip-text text-transparent">
+              Website Vision
+            </span>
+          </h1>
+          
+          {/* Subtitle with typewriter */}
+          <p className="text-xl md:text-2xl text-gray-400 mb-4 max-w-3xl mx-auto leading-relaxed">
+            สร้างแผนพัฒนาเว็บไซต์อย่างครบถ้วนด้วย AI
+          </p>
+          <div className="h-8 mb-12">
+            <TypewriterText 
+              texts={[
+                'วิเคราะห์ Requirements อัตโนมัติ',
+                'สร้าง Flowchart แบบ Interactive',
+                'ประเมินระยะเวลาและงบประมาณ',
+                'วางแผน Risk Assessment',
+              ]}
+              className="text-lg text-purple-400"
+            />
+          </div>
+          
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link href="/generate">
+              <Button size="lg" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white rounded-full px-8 py-6 text-lg font-medium group shadow-lg shadow-purple-500/25">
+                <Rocket className="size-5 mr-2" />
+                เริ่มสร้าง Discovery
+                <ArrowRight className="size-5 ml-2 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </Link>
+            <Link href="/flowchart">
+              <Button size="lg" className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white rounded-full px-8 py-6 text-lg font-medium group shadow-lg shadow-blue-500/25">
+                <GitBranch className="size-5 mr-2" />
+                เริ่มสร้าง Flowchart
+                <ArrowRight className="size-5 ml-2 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+        
+      </section>
+
+      {/* Products Section */}
+      <section className="relative py-32 px-6">
+        <div className="container mx-auto max-w-7xl">
+          {/* Section Header */}
+          <div 
+            className={`mb-16 transition-all duration-1000 delay-300 ${
+              isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+            }`}
+          >
+            <div className="inline-flex items-center gap-2 text-sm text-gray-500 mb-4">
+              <span className="text-gray-600">[</span>
+              <span className="text-purple-400">Products</span>
+              <span className="text-gray-600">]</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold">
+              <span className="text-white">AI สำหรับ</span>
+              <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent"> ทุกการวางแผน</span>
+            </h2>
+          </div>
+
+          {/* Product Cards */}
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Flowchart Card */}
+            <Link href="/flowchart" className="group">
+              <div 
+                className={`relative p-8 rounded-3xl bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 
+                  hover:border-purple-500/50 hover:bg-white/[0.08] transition-all duration-500 h-full
+                  ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+                style={{ transitionDelay: '400ms' }}
+              >
+                {/* Glow effect */}
+                <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-purple-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                <div className="relative z-10">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="p-3 rounded-2xl bg-purple-500/10 border border-purple-500/20">
+                      <GitBranch className="size-8 text-purple-400" />
+                    </div>
+                    <ChevronRight className="size-6 text-gray-600 group-hover:text-purple-400 group-hover:translate-x-2 transition-all" />
+                  </div>
+                  
+                  <h3 className="text-2xl font-bold text-white mb-3">
+                    Flowchart Generator
+                  </h3>
+                  <p className="text-gray-400 leading-relaxed mb-6">
+                    สร้าง Flowchart Diagram สำหรับเว็บไซต์ของคุณ เลือกประเภทเว็บ เลือก Features แล้วให้ AI สร้างแผนผังโครงสร้างแบบ Interactive
+                  </p>
+                  
+                  {/* Features */}
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    <div className="px-3 py-1.5 rounded-full bg-white/5 text-xs text-gray-400 border border-white/10">
+                      <LayoutGrid className="size-3 inline mr-1.5" />
+                      Feature Overview
+                    </div>
+                    <div className="px-3 py-1.5 rounded-full bg-white/5 text-xs text-gray-400 border border-white/10">
+                      <Users className="size-3 inline mr-1.5" />
+                      User Flow
+                    </div>
+                    <div className="px-3 py-1.5 rounded-full bg-white/5 text-xs text-gray-400 border border-white/10">
+                      <Database className="size-3 inline mr-1.5" />
+                      Data Flow
+                    </div>
+                  </div>
+                  
+                  <div className="inline-flex items-center text-purple-400 font-medium group-hover:gap-2 transition-all">
+                    <span>สร้าง Flowchart</span>
+                    <ArrowRight className="size-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                  </div>
+                </div>
+                
+                {/* Decorative elements */}
+                <div className="absolute top-4 right-4 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl" />
+              </div>
+            </Link>
+
+            {/* Discovery Card */}
+            <Link href="/generate" className="group">
+              <div 
+                className={`relative p-8 rounded-3xl bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 
+                  hover:border-pink-500/50 hover:bg-white/[0.08] transition-all duration-500 h-full
+                  ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+                style={{ transitionDelay: '500ms' }}
+              >
+                {/* Glow effect */}
+                <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-pink-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                <div className="relative z-10">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="p-3 rounded-2xl bg-pink-500/10 border border-pink-500/20">
+                      <FileText className="size-8 text-pink-400" />
+                    </div>
+                    <ChevronRight className="size-6 text-gray-600 group-hover:text-pink-400 group-hover:translate-x-2 transition-all" />
+                  </div>
+                  
+                  <h3 className="text-2xl font-bold text-white mb-3">
+                    Discovery & Planning
+                  </h3>
+                  <p className="text-gray-400 leading-relaxed mb-6">
+                    สร้างเอกสาร Discovery และแผนโปรเจคอัตโนมัติด้วย AI ครบทุกด้าน ตั้งแต่ Requirements จนถึง Risk Assessment
+                  </p>
+                  
+                  {/* Features */}
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    <div className="px-3 py-1.5 rounded-full bg-white/5 text-xs text-gray-400 border border-white/10">
+                      <Layers className="size-3 inline mr-1.5" />
+                      Requirements
+                    </div>
+                    <div className="px-3 py-1.5 rounded-full bg-white/5 text-xs text-gray-400 border border-white/10">
+                      <Clock className="size-3 inline mr-1.5" />
+                      Timeline
+                    </div>
+                    <div className="px-3 py-1.5 rounded-full bg-white/5 text-xs text-gray-400 border border-white/10">
+                      <Shield className="size-3 inline mr-1.5" />
+                      Risk Analysis
+                    </div>
+                  </div>
+                  
+                  <div className="inline-flex items-center text-pink-400 font-medium group-hover:gap-2 transition-all">
+                    <span>เริ่มสร้าง Discovery</span>
+                    <ArrowRight className="size-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                  </div>
+                </div>
+                
+                {/* Decorative elements */}
+                <div className="absolute top-4 right-4 w-32 h-32 bg-pink-500/10 rounded-full blur-3xl" />
+              </div>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Grid */}
+      <section className="relative py-32 px-6 border-t border-white/5">
+        <div className="container mx-auto max-w-7xl">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 text-sm text-gray-500 mb-4">
+              <span className="text-gray-600">[</span>
+              <span className="text-purple-400">Features</span>
+              <span className="text-gray-600">]</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+              ทำไมต้องใช้ PlannerAI?
+            </h2>
+            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+              เครื่องมือที่ช่วยให้การวางแผนพัฒนาเว็บไซต์เป็นเรื่องง่ายและครบถ้วน
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              {
+                icon: Sparkles,
+                title: 'AI-Powered',
+                description: 'ใช้ Gemini AI วิเคราะห์และสร้างแผนงานอัตโนมัติ ประหยัดเวลาในการวางแผน',
+                color: 'purple',
+              },
+              {
+                icon: Layers,
+                title: 'ครบทุก Features',
+                description: 'รองรับทุกประเภทเว็บ ตั้งแต่ E-Commerce, Blog, Portfolio ไปจนถึง SaaS',
+                color: 'blue',
+              },
+              {
+                icon: Code2,
+                title: 'Mermaid Diagram',
+                description: 'สร้าง Flowchart ด้วย Mermaid.js ส่งออกเป็น SVG หรือ PNG ได้ทันที',
+                color: 'green',
+              },
+              {
+                icon: TrendingUp,
+                title: 'Budget & Timeline',
+                description: 'ประเมินงบประมาณและระยะเวลาพัฒนาจาก Features ที่เลือก',
+                color: 'orange',
+              },
+              {
+                icon: Shield,
+                title: 'Risk Assessment',
+                description: 'วิเคราะห์ความเสี่ยงและแนวทางแก้ไขปัญหาที่อาจเกิดขึ้น',
+                color: 'red',
+              },
+              {
+                icon: Globe,
+                title: 'รองรับภาษาไทย',
+                description: 'สลับภาษาได้ทั้ง English และไทย สำหรับทั้ง UI และเอกสารที่สร้าง',
+                color: 'pink',
+              },
+            ].map((feature, index) => (
+              <div 
+                key={feature.title}
+                className={`p-6 rounded-2xl bg-white/[0.03] border border-white/5 hover:border-${feature.color}-500/30 
+                  hover:bg-white/[0.05] transition-all duration-300 group
+                  ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+                style={{ transitionDelay: `${600 + index * 100}ms` }}
+              >
+                <div className={`p-3 rounded-xl bg-${feature.color}-500/10 border border-${feature.color}-500/20 w-fit mb-4 
+                  group-hover:scale-110 transition-transform`}>
+                  <feature.icon className={`size-6 text-${feature.color}-400`} />
+                </div>
+                <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
+                <p className="text-gray-500 text-sm leading-relaxed">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="relative py-32 px-6">
+        <div className="container mx-auto max-w-4xl text-center">
+          {/* Gradient background */}
+          <div className="absolute inset-0 bg-gradient-to-t from-purple-900/20 to-transparent" />
+          
+          <div className="relative z-10">
+            <div className="inline-block p-4 rounded-3xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 mb-8">
+              <Rocket className="size-12 text-purple-400" />
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              พร้อมเริ่มวางแผนโปรเจคของคุณ?
+            </h2>
+            <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">
+              เริ่มต้นใช้งานฟรี ไม่ต้องสมัครสมาชิก สร้างแผนพัฒนาเว็บไซต์แบบมืออาชีพได้ทันที
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link href="/generate">
+                <Button size="lg" className="bg-white text-black hover:bg-gray-200 rounded-full px-8 py-6 text-lg font-medium">
+                  เริ่มต้นใช้งานเลย
+                  <ArrowRight className="size-5 ml-2" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-white/5 py-12 px-6">
+        <div className="container mx-auto max-w-7xl">
+          <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <Zap className="size-5 text-purple-400" />
+                <span className="font-bold">PlannerAI</span>
+              </div>
+              <p className="text-sm text-gray-500">
+                AI-powered website planning tool for developers and designers.
+              </p>
+            </div>
+            
+            <div>
+              <h4 className="font-medium text-white mb-4">Products</h4>
+              <ul className="space-y-2 text-sm text-gray-500">
+                <li><Link href="/flowchart" className="hover:text-white transition-colors">Flowchart Generator</Link></li>
+                <li><Link href="/generate" className="hover:text-white transition-colors">Discovery & Planning</Link></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-medium text-white mb-4">Resources</h4>
+              <ul className="space-y-2 text-sm text-gray-500">
+                <li><Link href="/history" className="hover:text-white transition-colors">History</Link></li>
+                <li><Link href="/flowchart/history" className="hover:text-white transition-colors">Flowchart History</Link></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-medium text-white mb-4">Powered By</h4>
+              <ul className="space-y-2 text-sm text-gray-500">
+                <li>Google Gemini AI</li>
+                <li>Next.js</li>
+                <li>Mermaid.js</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="border-t border-white/5 pt-8 text-center text-sm text-gray-600">
+            <p>© {new Date().getFullYear()} PlannerAI. Built with 💜 for developers.</p>
+          </div>
+        </div>
+      </footer>
+    </div>
   );
 }
