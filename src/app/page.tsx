@@ -21,9 +21,11 @@ import {
   TrendingUp
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { useTheme } from '@/components/ThemeProvider';
 
 // Animated background particles
-function ParticleField() {
+function ParticleField({ isDark }: { isDark: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
   useEffect(() => {
@@ -56,6 +58,9 @@ function ParticleField() {
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
+      const particleColor = isDark ? '147, 51, 234' : '124, 58, 237';
+      const opacityMultiplier = isDark ? 1 : 0.7;
+      
       particles.forEach((p) => {
         p.x += p.vx;
         p.y += p.vy;
@@ -67,7 +72,7 @@ function ParticleField() {
         
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(147, 51, 234, ${p.opacity})`;
+        ctx.fillStyle = `rgba(${particleColor}, ${p.opacity * opacityMultiplier})`;
         ctx.fill();
       });
       
@@ -82,7 +87,7 @@ function ParticleField() {
             ctx.beginPath();
             ctx.moveTo(p1.x, p1.y);
             ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(147, 51, 234, ${0.1 * (1 - dist / 150)})`;
+            ctx.strokeStyle = `rgba(${particleColor}, ${0.1 * opacityMultiplier * (1 - dist / 150)})`;
             ctx.stroke();
           }
         });
@@ -96,7 +101,7 @@ function ParticleField() {
       window.removeEventListener('resize', resize);
       cancelAnimationFrame(animationId);
     };
-  }, []);
+  }, [isDark]);
   
   return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none" />;
 }
@@ -141,51 +146,49 @@ function TypewriterText({ texts, className }: { texts: string[]; className?: str
 
 export default function HomePage() {
   const [isLoaded, setIsLoaded] = useState(false);
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   
   useEffect(() => {
     setIsLoaded(true);
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white overflow-hidden">
-      <ParticleField />
+    <div className={`min-h-screen overflow-hidden transition-colors duration-300 ${isDark ? 'bg-[#0a0a0a] text-white' : 'bg-gray-50 text-gray-900'}`}>
+      <ParticleField isDark={isDark} />
       
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-black/30 border-b border-white/5">
+      <nav className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-xl border-b transition-colors duration-300 ${isDark ? 'bg-black/30 border-white/5' : 'bg-white/70 border-gray-200'}`}>
         <div className="container mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 group">
             <div className="relative">
               <div className="absolute inset-0 bg-purple-500 blur-lg opacity-50 group-hover:opacity-75 transition-opacity" />
               <Zap className="size-7 text-purple-400 relative" />
             </div>
-            <span className="font-bold text-xl tracking-tight">PlannerAI</span>
+            <span className={`font-bold text-xl tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>PlannerAI</span>
           </Link>
           
           <div className="hidden md:flex items-center gap-8">
-            <Link href="/flowchart" className="text-sm text-gray-400 hover:text-white transition-colors">
+            <Link href="/flowchart" className={`text-sm transition-colors ${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}>
               Flowchart
             </Link>
-            <Link href="/generate" className="text-sm text-gray-400 hover:text-white transition-colors">
+            <Link href="/generate" className={`text-sm transition-colors ${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}>
               Discovery
             </Link>
-            <Link href="/history" className="text-sm text-gray-400 hover:text-white transition-colors">
+            <Link href="/history" className={`text-sm transition-colors ${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}>
               History
             </Link>
           </div>
           
-          {/* <Link href="/generate">
-            <Button className="bg-white text-black hover:bg-gray-200 rounded-full px-6 text-sm font-medium">
-              เริ่มต้นใช้งาน
-            </Button>
-          </Link> */}
+          <ThemeToggle />
         </div>
       </nav>
 
       {/* Hero Section */}
       <section className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-16">
         {/* Gradient orbs */}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-[128px] animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-600/20 rounded-full blur-[128px] animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className={`absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-[128px] animate-pulse ${isDark ? 'bg-purple-600/20' : 'bg-purple-500/15'}`} />
+        <div className={`absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-[128px] animate-pulse ${isDark ? 'bg-blue-600/20' : 'bg-blue-500/15'}`} style={{ animationDelay: '1s' }} />
         
         <div 
           className={`relative z-10 text-center max-w-5xl transition-all duration-1000 ${
@@ -193,14 +196,13 @@ export default function HomePage() {
           }`}
         >
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8">
-            {/* <Sparkles className="size-4 text-purple-400" /> */}
-            <span className="text-sm text-gray-300">Powered by Gemini AI</span>
+          <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full mb-8 ${isDark ? 'bg-white/5 border border-white/10' : 'bg-gray-100 border border-gray-200'}`}>
+            <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Powered by Gemini AI</span>
           </div>
           
           {/* Main Heading */}
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6">
-            <span className="bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">
+            <span className={`bg-clip-text text-transparent ${isDark ? 'bg-gradient-to-r from-white via-gray-200 to-gray-400' : 'bg-gradient-to-r from-gray-800 via-gray-700 to-gray-600'}`}>
               Plan Your
             </span>
             <br />
@@ -210,7 +212,7 @@ export default function HomePage() {
           </h1>
           
           {/* Subtitle with typewriter */}
-          <p className="text-xl md:text-2xl text-gray-400 mb-4 max-w-3xl mx-auto leading-relaxed">
+          <p className={`text-xl md:text-2xl mb-4 max-w-3xl mx-auto leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
             สร้างแผนพัฒนาเว็บไซต์อย่างครบถ้วนด้วย AI
           </p>
           <div className="h-8 mb-12">
@@ -255,13 +257,13 @@ export default function HomePage() {
               isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
             }`}
           >
-            <div className="inline-flex items-center gap-2 text-sm text-gray-500 mb-4">
-              <span className="text-gray-600">[</span>
+            <div className={`inline-flex items-center gap-2 text-sm mb-4 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+              <span className={isDark ? 'text-gray-600' : 'text-gray-400'}>[</span>
               <span className="text-purple-400">Products</span>
-              <span className="text-gray-600">]</span>
+              <span className={isDark ? 'text-gray-600' : 'text-gray-400'}>]</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-bold">
-              <span className="text-white">AI สำหรับ</span>
+              <span className={isDark ? 'text-white' : 'text-gray-800'}>AI สำหรับ</span>
               <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent"> ทุกการวางแผน</span>
             </h2>
           </div>
@@ -271,40 +273,43 @@ export default function HomePage() {
             {/* Flowchart Card */}
             <Link href="/flowchart" className="group">
               <div 
-                className={`relative p-8 rounded-3xl bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 
-                  hover:border-purple-500/50 hover:bg-white/[0.08] transition-all duration-500 h-full
+                className={`relative p-8 rounded-3xl border transition-all duration-500 h-full
+                  ${isDark 
+                    ? 'bg-gradient-to-br from-white/[0.07] to-white/[0.02] border-white/10 hover:border-purple-500/50 hover:bg-white/[0.08]' 
+                    : 'bg-gradient-to-br from-white to-gray-50 border-gray-200 hover:border-purple-400 hover:shadow-xl hover:shadow-purple-500/10'
+                  }
                   ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
                 style={{ transitionDelay: '400ms' }}
               >
                 {/* Glow effect */}
-                <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-purple-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className={`absolute inset-0 rounded-3xl bg-gradient-to-br from-purple-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
                 
                 <div className="relative z-10">
                   <div className="flex items-center justify-between mb-6">
                     <div className="p-3 rounded-2xl bg-purple-500/10 border border-purple-500/20">
                       <GitBranch className="size-8 text-purple-400" />
                     </div>
-                    <ChevronRight className="size-6 text-gray-600 group-hover:text-purple-400 group-hover:translate-x-2 transition-all" />
+                    <ChevronRight className={`size-6 group-hover:text-purple-400 group-hover:translate-x-2 transition-all ${isDark ? 'text-gray-600' : 'text-gray-400'}`} />
                   </div>
                   
-                  <h3 className="text-2xl font-bold text-white mb-3">
+                  <h3 className={`text-2xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-800'}`}>
                     Flowchart Generator
                   </h3>
-                  <p className="text-gray-400 leading-relaxed mb-6">
+                  <p className={`leading-relaxed mb-6 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                     สร้าง Flowchart Diagram สำหรับเว็บไซต์ของคุณ เลือกประเภทเว็บ เลือก Features แล้วให้ AI สร้างแผนผังโครงสร้างแบบ Interactive
                   </p>
                   
                   {/* Features */}
                   <div className="flex flex-wrap gap-2 mb-6">
-                    <div className="px-3 py-1.5 rounded-full bg-white/5 text-xs text-gray-400 border border-white/10">
+                    <div className={`px-3 py-1.5 rounded-full text-xs border ${isDark ? 'bg-white/5 text-gray-400 border-white/10' : 'bg-gray-100 text-gray-600 border-gray-200'}`}>
                       <LayoutGrid className="size-3 inline mr-1.5" />
                       Feature Overview
                     </div>
-                    <div className="px-3 py-1.5 rounded-full bg-white/5 text-xs text-gray-400 border border-white/10">
+                    <div className={`px-3 py-1.5 rounded-full text-xs border ${isDark ? 'bg-white/5 text-gray-400 border-white/10' : 'bg-gray-100 text-gray-600 border-gray-200'}`}>
                       <Users className="size-3 inline mr-1.5" />
                       User Flow
                     </div>
-                    <div className="px-3 py-1.5 rounded-full bg-white/5 text-xs text-gray-400 border border-white/10">
+                    <div className={`px-3 py-1.5 rounded-full text-xs border ${isDark ? 'bg-white/5 text-gray-400 border-white/10' : 'bg-gray-100 text-gray-600 border-gray-200'}`}>
                       <Database className="size-3 inline mr-1.5" />
                       Data Flow
                     </div>
@@ -324,40 +329,43 @@ export default function HomePage() {
             {/* Discovery Card */}
             <Link href="/generate" className="group">
               <div 
-                className={`relative p-8 rounded-3xl bg-gradient-to-br from-white/[0.07] to-white/[0.02] border border-white/10 
-                  hover:border-pink-500/50 hover:bg-white/[0.08] transition-all duration-500 h-full
+                className={`relative p-8 rounded-3xl border transition-all duration-500 h-full
+                  ${isDark 
+                    ? 'bg-gradient-to-br from-white/[0.07] to-white/[0.02] border-white/10 hover:border-pink-500/50 hover:bg-white/[0.08]' 
+                    : 'bg-gradient-to-br from-white to-gray-50 border-gray-200 hover:border-pink-400 hover:shadow-xl hover:shadow-pink-500/10'
+                  }
                   ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
                 style={{ transitionDelay: '500ms' }}
               >
                 {/* Glow effect */}
-                <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-pink-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className={`absolute inset-0 rounded-3xl bg-gradient-to-br from-pink-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
                 
                 <div className="relative z-10">
                   <div className="flex items-center justify-between mb-6">
                     <div className="p-3 rounded-2xl bg-pink-500/10 border border-pink-500/20">
                       <FileText className="size-8 text-pink-400" />
                     </div>
-                    <ChevronRight className="size-6 text-gray-600 group-hover:text-pink-400 group-hover:translate-x-2 transition-all" />
+                    <ChevronRight className={`size-6 group-hover:text-pink-400 group-hover:translate-x-2 transition-all ${isDark ? 'text-gray-600' : 'text-gray-400'}`} />
                   </div>
                   
-                  <h3 className="text-2xl font-bold text-white mb-3">
+                  <h3 className={`text-2xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-800'}`}>
                     Discovery & Planning
                   </h3>
-                  <p className="text-gray-400 leading-relaxed mb-6">
+                  <p className={`leading-relaxed mb-6 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                     สร้างเอกสาร Discovery และแผนโปรเจคอัตโนมัติด้วย AI ครบทุกด้าน ตั้งแต่ Requirements จนถึง Risk Assessment
                   </p>
                   
                   {/* Features */}
                   <div className="flex flex-wrap gap-2 mb-6">
-                    <div className="px-3 py-1.5 rounded-full bg-white/5 text-xs text-gray-400 border border-white/10">
+                    <div className={`px-3 py-1.5 rounded-full text-xs border ${isDark ? 'bg-white/5 text-gray-400 border-white/10' : 'bg-gray-100 text-gray-600 border-gray-200'}`}>
                       <Layers className="size-3 inline mr-1.5" />
                       Requirements
                     </div>
-                    <div className="px-3 py-1.5 rounded-full bg-white/5 text-xs text-gray-400 border border-white/10">
+                    <div className={`px-3 py-1.5 rounded-full text-xs border ${isDark ? 'bg-white/5 text-gray-400 border-white/10' : 'bg-gray-100 text-gray-600 border-gray-200'}`}>
                       <Clock className="size-3 inline mr-1.5" />
                       Timeline
                     </div>
-                    <div className="px-3 py-1.5 rounded-full bg-white/5 text-xs text-gray-400 border border-white/10">
+                    <div className={`px-3 py-1.5 rounded-full text-xs border ${isDark ? 'bg-white/5 text-gray-400 border-white/10' : 'bg-gray-100 text-gray-600 border-gray-200'}`}>
                       <Shield className="size-3 inline mr-1.5" />
                       Risk Analysis
                     </div>
@@ -378,18 +386,18 @@ export default function HomePage() {
       </section>
 
       {/* Features Grid */}
-      <section className="relative py-32 px-6 border-t border-white/5">
+      <section className={`relative py-32 px-6 border-t ${isDark ? 'border-white/5' : 'border-gray-200'}`}>
         <div className="container mx-auto max-w-7xl">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 text-sm text-gray-500 mb-4">
-              <span className="text-gray-600">[</span>
+            <div className={`inline-flex items-center gap-2 text-sm mb-4 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+              <span className={isDark ? 'text-gray-600' : 'text-gray-400'}>[</span>
               <span className="text-purple-400">Features</span>
-              <span className="text-gray-600">]</span>
+              <span className={isDark ? 'text-gray-600' : 'text-gray-400'}>]</span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+            <h2 className={`text-4xl md:text-5xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-800'}`}>
               ทำไมต้องใช้ PlannerAI?
             </h2>
-            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+            <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
               เครื่องมือที่ช่วยให้การวางแผนพัฒนาเว็บไซต์เป็นเรื่องง่ายและครบถ้วน
             </p>
           </div>
@@ -435,8 +443,11 @@ export default function HomePage() {
             ].map((feature, index) => (
               <div 
                 key={feature.title}
-                className={`p-6 rounded-2xl bg-white/[0.03] border border-white/5 hover:border-${feature.color}-500/30 
-                  hover:bg-white/[0.05] transition-all duration-300 group
+                className={`p-6 rounded-2xl border transition-all duration-300 group
+                  ${isDark 
+                    ? `bg-white/[0.03] border-white/5 hover:border-${feature.color}-500/30 hover:bg-white/[0.05]` 
+                    : `bg-white border-gray-200 hover:border-${feature.color}-400 hover:shadow-lg`
+                  }
                   ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
                 style={{ transitionDelay: `${600 + index * 100}ms` }}
               >
@@ -444,8 +455,8 @@ export default function HomePage() {
                   group-hover:scale-110 transition-transform`}>
                   <feature.icon className={`size-6 text-${feature.color}-400`} />
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed">{feature.description}</p>
+                <h3 className={`text-lg font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-800'}`}>{feature.title}</h3>
+                <p className={`text-sm leading-relaxed ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>{feature.description}</p>
               </div>
             ))}
           </div>
@@ -456,21 +467,21 @@ export default function HomePage() {
       <section className="relative py-32 px-6">
         <div className="container mx-auto max-w-4xl text-center">
           {/* Gradient background */}
-          <div className="absolute inset-0 bg-gradient-to-t from-purple-900/20 to-transparent" />
+          <div className={`absolute inset-0 bg-gradient-to-t ${isDark ? 'from-purple-900/20' : 'from-purple-100/50'} to-transparent`} />
           
           <div className="relative z-10">
             <div className="inline-block p-4 rounded-3xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 mb-8">
               <Rocket className="size-12 text-purple-400" />
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+            <h2 className={`text-4xl md:text-5xl font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-800'}`}>
               พร้อมเริ่มวางแผนโปรเจคของคุณ?
             </h2>
-            <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">
+            <p className={`text-xl mb-10 max-w-2xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
               เริ่มต้นใช้งานฟรี ไม่ต้องสมัครสมาชิก สร้างแผนพัฒนาเว็บไซต์แบบมืออาชีพได้ทันที
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link href="/generate">
-                <Button size="lg" className="bg-white text-black hover:bg-gray-200 rounded-full px-8 py-6 text-lg font-medium">
+                <Button size="lg" className={`rounded-full px-8 py-6 text-lg font-medium ${isDark ? 'bg-white text-black hover:bg-gray-200' : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-500 hover:to-pink-500'}`}>
                   เริ่มต้นใช้งานเลย
                   <ArrowRight className="size-5 ml-2" />
                 </Button>
@@ -481,38 +492,38 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-white/5 py-12 px-6">
+      <footer className={`border-t py-12 px-6 ${isDark ? 'border-white/5' : 'border-gray-200'}`}>
         <div className="container mx-auto max-w-7xl">
           <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-8 mb-12">
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <Zap className="size-5 text-purple-400" />
-                <span className="font-bold">PlannerAI</span>
+                <span className={`font-bold ${isDark ? 'text-white' : 'text-gray-800'}`}>PlannerAI</span>
               </div>
-              <p className="text-sm text-gray-500">
+              <p className={`text-sm ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
                 AI-powered website planning tool for developers and designers.
               </p>
             </div>
             
             <div>
-              <h4 className="font-medium text-white mb-4">Products</h4>
-              <ul className="space-y-2 text-sm text-gray-500">
-                <li><Link href="/flowchart" className="hover:text-white transition-colors">Flowchart Generator</Link></li>
-                <li><Link href="/generate" className="hover:text-white transition-colors">Discovery & Planning</Link></li>
+              <h4 className={`font-medium mb-4 ${isDark ? 'text-white' : 'text-gray-800'}`}>Products</h4>
+              <ul className={`space-y-2 text-sm ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
+                <li><Link href="/flowchart" className={`transition-colors ${isDark ? 'hover:text-white' : 'hover:text-gray-900'}`}>Flowchart Generator</Link></li>
+                <li><Link href="/generate" className={`transition-colors ${isDark ? 'hover:text-white' : 'hover:text-gray-900'}`}>Discovery & Planning</Link></li>
               </ul>
             </div>
             
             <div>
-              <h4 className="font-medium text-white mb-4">Resources</h4>
-              <ul className="space-y-2 text-sm text-gray-500">
-                <li><Link href="/history" className="hover:text-white transition-colors">History</Link></li>
-                <li><Link href="/flowchart/history" className="hover:text-white transition-colors">Flowchart History</Link></li>
+              <h4 className={`font-medium mb-4 ${isDark ? 'text-white' : 'text-gray-800'}`}>Resources</h4>
+              <ul className={`space-y-2 text-sm ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
+                <li><Link href="/history" className={`transition-colors ${isDark ? 'hover:text-white' : 'hover:text-gray-900'}`}>History</Link></li>
+                <li><Link href="/flowchart/history" className={`transition-colors ${isDark ? 'hover:text-white' : 'hover:text-gray-900'}`}>Flowchart History</Link></li>
               </ul>
             </div>
             
             <div>
-              <h4 className="font-medium text-white mb-4">Powered By</h4>
-              <ul className="space-y-2 text-sm text-gray-500">
+              <h4 className={`font-medium mb-4 ${isDark ? 'text-white' : 'text-gray-800'}`}>Powered By</h4>
+              <ul className={`space-y-2 text-sm ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
                 <li>Google Gemini AI</li>
                 <li>Next.js</li>
                 <li>Mermaid.js</li>
@@ -520,7 +531,7 @@ export default function HomePage() {
             </div>
           </div>
           
-          <div className="border-t border-white/5 pt-8 text-center text-sm text-gray-600">
+          <div className={`border-t pt-8 text-center text-sm ${isDark ? 'border-white/5 text-gray-600' : 'border-gray-200 text-gray-500'}`}>
             <p>© {new Date().getFullYear()} PlannerAI. Built with 💜 for developers.</p>
           </div>
         </div>

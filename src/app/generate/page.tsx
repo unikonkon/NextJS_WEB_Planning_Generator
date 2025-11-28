@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,8 +19,10 @@ import {
   FileText,
   Copy,
   Check,
-  History
+  History,
+  Home,
 } from 'lucide-react';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { WizardProgress, StepOne, StepTwo, StepThree, StepFour } from '@/components/wizard';
 import { ResultsDisplay } from '@/components/results';
 import { ExportButtons } from '@/components/export';
@@ -219,32 +222,42 @@ export default function GeneratePage() {
   // If plan is generated, show results
   if (generatedPlan) {
     return (
-      <main className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-        <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <main className="page-gradient">
+        <div className="container relative z-10 mx-auto px-4 py-8 max-w-6xl">
           {/* Header */}
           <header className="flex items-center justify-between mb-8">
-            <Button variant="ghost" onClick={handleReset} className="gap-2">
-              <ChevronLeft className="w-4 h-4" />
-              {uiLang === 'th' ? 'สร้างใหม่' : 'Start New'}
-            </Button>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Link href="/">
+                <Button variant="ghost" size="sm" className="gap-2 hover:bg-white/10">
+                  <Home className="w-4 h-4" />
+                  <span className="hidden sm:inline">หน้าหลัก</span>
+                </Button>
+              </Link>
+              <Button variant="ghost" onClick={handleReset} className="gap-2">
+                <ChevronLeft className="w-4 h-4" />
+                {uiLang === 'th' ? 'สร้างใหม่' : 'Start New'}
+              </Button>
+            </div>
+            <div className="flex items-center gap-2 sm:gap-4">
               <Button
                 variant="outline"
                 onClick={() => router.push('/history')}
                 className="gap-2"
+                size="sm"
               >
                 <History className="w-4 h-4" />
-                {uiLang === 'th' ? 'ประวัติ' : 'History'}
+                <span className="hidden sm:inline">{uiLang === 'th' ? 'ประวัติ' : 'History'}</span>
               </Button>
               <div className="flex items-center gap-2">
-                <Globe className="w-4 h-4 text-muted-foreground" />
-                <Label className="text-sm">EN</Label>
+                <Globe className="w-4 h-4 text-muted-foreground hidden sm:block" />
+                <Label className="text-xs sm:text-sm">EN</Label>
                 <Switch
                   checked={uiLang === 'th'}
                   onCheckedChange={(checked) => setUiLang(checked ? 'th' : 'en')}
                 />
-                <Label className="text-sm">TH</Label>
+                <Label className="text-xs sm:text-sm">TH</Label>
               </div>
+              <ThemeToggle />
             </div>
           </header>
 
@@ -320,32 +333,42 @@ export default function GeneratePage() {
   // Show raw response view when parsing failed
   if (showRawResponse && rawResponse && error) {
     return (
-      <main className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-        <div className="container mx-auto px-4 py-8 max-w-5xl">
+      <main className="page-gradient">
+        <div className="container relative z-10 mx-auto px-4 py-8 max-w-5xl">
           {/* Header */}
           <header className="flex items-center justify-between mb-8">
-            <Button variant="ghost" onClick={handleReset} className="gap-2">
-              <ChevronLeft className="w-4 h-4" />
-              {uiLang === 'th' ? 'เริ่มใหม่' : 'Start Over'}
-            </Button>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Link href="/">
+                <Button variant="ghost" size="sm" className="gap-2 hover:bg-white/10">
+                  <Home className="w-4 h-4" />
+                  <span className="hidden sm:inline">หน้าหลัก</span>
+                </Button>
+              </Link>
+              <Button variant="ghost" onClick={handleReset} className="gap-2">
+                <ChevronLeft className="w-4 h-4" />
+                {uiLang === 'th' ? 'เริ่มใหม่' : 'Start Over'}
+              </Button>
+            </div>
+            <div className="flex items-center gap-2 sm:gap-4">
               <Button
                 variant="outline"
                 onClick={() => router.push('/history')}
                 className="gap-2"
+                size="sm"
               >
                 <History className="w-4 h-4" />
-                {uiLang === 'th' ? 'ประวัติ' : 'History'}
+                <span className="hidden sm:inline">{uiLang === 'th' ? 'ประวัติ' : 'History'}</span>
               </Button>
               <div className="flex items-center gap-2">
-                <Globe className="w-4 h-4 text-muted-foreground" />
-                <Label className="text-sm">EN</Label>
+                <Globe className="w-4 h-4 text-muted-foreground hidden sm:block" />
+                <Label className="text-xs sm:text-sm">EN</Label>
                 <Switch
                   checked={uiLang === 'th'}
                   onCheckedChange={(checked) => setUiLang(checked ? 'th' : 'en')}
                 />
-                <Label className="text-sm">TH</Label>
+                <Label className="text-xs sm:text-sm">TH</Label>
               </div>
+              <ThemeToggle />
             </div>
           </header>
 
@@ -428,16 +451,42 @@ export default function GeneratePage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-      <div className="container mx-auto px-4 py-8 max-w-5xl">
+    <main className="page-gradient">
+      <div className="container relative z-10 mx-auto px-4 py-8 max-w-5xl">
+        {/* Top Navigation */}
+        <div className="flex items-center justify-between mb-6">
+          <Link href="/">
+            <Button variant="ghost" size="sm" className="gap-2 hover:bg-white/10">
+              <Home className="w-4 h-4" />
+              <span className="hidden sm:inline">หน้าหลัก</span>
+            </Button>
+          </Link>
+          <div className="flex items-center gap-2 sm:gap-4">
+            <Button
+              variant="outline"
+              onClick={() => router.push('/history')}
+              className="gap-2"
+              size="sm"
+            >
+              <History className="w-4 h-4" />
+              <span className="hidden sm:inline">{uiLang === 'th' ? 'ประวัติ' : 'History'}</span>
+            </Button>
+            <div className="flex items-center gap-2">
+              <Globe className="w-4 h-4 text-muted-foreground hidden sm:block" />
+              <Label className="text-xs sm:text-sm">EN</Label>
+              <Switch
+                checked={uiLang === 'th'}
+                onCheckedChange={(checked) => setUiLang(checked ? 'th' : 'en')}
+              />
+              <Label className="text-xs sm:text-sm">TH</Label>
+            </div>
+            <ThemeToggle />
+          </div>
+        </div>
+
         {/* Header */}
         <header className="text-center mb-8">
-          {/* <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="p-3 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5">
-              <Sparkles className="w-8 h-8 text-primary" />
-            </div>
-          </div> */}
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-2">
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-2 bg-gradient-to-r from-purple-400 via-pink-400 to-purple-600 bg-clip-text text-transparent">
             {uiLang === 'th' 
               ? 'AI-Powered Discovery & Planning' 
               : 'AI-Powered Discovery & Planning'}
@@ -447,27 +496,6 @@ export default function GeneratePage() {
               ? 'สร้างเอกสาร Discovery และแผนโปรเจคอัตโนมัติด้วย AI ครบทุกด้าน ตั้งแต่ Requirements จนถึง Risk Assessment'
               : 'Generate comprehensive project discovery documents automatically with AI - from Requirements to Risk Assessment'}
           </p>
-          
-          {/* Language Toggle & History */}
-          <div className="flex items-center justify-center gap-4 mt-4">
-            <Button
-              variant="outline"
-              onClick={() => router.push('/history')}
-              className="gap-2"
-            >
-              <History className="w-4 h-4" />
-              {uiLang === 'th' ? 'ดูประวัติ' : 'View History'}
-            </Button>
-            <div className="flex items-center gap-2">
-              <Globe className="w-4 h-4 text-muted-foreground" />
-              <Label className="text-sm">EN</Label>
-              <Switch
-                checked={uiLang === 'th'}
-                onCheckedChange={(checked) => setUiLang(checked ? 'th' : 'en')}
-              />
-              <Label className="text-sm">TH</Label>
-            </div>
-          </div>
         </header>
 
         {/* Progress */}

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Kanit } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import "./globals.css";
 
 const kanit = Kanit({
@@ -26,7 +27,9 @@ export default function RootLayout({
       <body
         className={`${kanit.variable} antialiased`}
       >
-        {children}
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
         <Toaster position="bottom-right" />
       </body>
     </html>

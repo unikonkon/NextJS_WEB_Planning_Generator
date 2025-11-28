@@ -20,7 +20,10 @@ import {
   FileText,
   AlertCircle,
   Loader2,
+  Home,
 } from 'lucide-react';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import Link from 'next/link';
 import {
   getAllGenerations,
   deleteGeneration,
@@ -163,27 +166,36 @@ export default function HistoryPage() {
   // Show detailed view
   if (selectedGeneration) {
     return (
-      <main className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-        <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8 max-w-6xl">
+      <main className="page-gradient">
+        <div className="container relative z-10 mx-auto px-3 sm:px-4 py-6 sm:py-8 max-w-6xl">
           {/* Header */}
           <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 sm:mb-8">
-            <Button
-              variant="ghost"
-              onClick={() => setSelectedGeneration(null)}
-              className="gap-2"
-            >
-              <ChevronLeft className="w-4 h-4" />
-              <span className="hidden sm:inline">{uiLang === 'th' ? 'กลับไปรายการประวัติ' : 'Back to History'}</span>
-              <span className="sm:hidden">{uiLang === 'th' ? 'กลับ' : 'Back'}</span>
-            </Button>
             <div className="flex items-center gap-2">
-              <Globe className="w-4 h-4 text-muted-foreground" />
+              <Link href="/">
+                <Button variant="ghost" size="sm" className="gap-2 hover:bg-white/10">
+                  <Home className="w-4 h-4" />
+                  <span className="hidden sm:inline">หน้าหลัก</span>
+                </Button>
+              </Link>
+              <Button
+                variant="ghost"
+                onClick={() => setSelectedGeneration(null)}
+                className="gap-2"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                <span className="hidden sm:inline">{uiLang === 'th' ? 'กลับไปรายการประวัติ' : 'Back to History'}</span>
+                <span className="sm:hidden">{uiLang === 'th' ? 'กลับ' : 'Back'}</span>
+              </Button>
+            </div>
+            <div className="flex items-center gap-2">
+              <Globe className="w-4 h-4 text-muted-foreground hidden sm:block" />
               <Label className="text-xs sm:text-sm">EN</Label>
               <Switch
                 checked={uiLang === 'th'}
                 onCheckedChange={(checked) => setUiLang(checked ? 'th' : 'en')}
               />
               <Label className="text-xs sm:text-sm">TH</Label>
+              <ThemeToggle />
             </div>
           </header>
 
@@ -301,36 +313,38 @@ export default function HistoryPage() {
 
   // Show list view
     return (
-      <main className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-        <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8 max-w-6xl">
+      <main className="page-gradient">
+        <div className="container relative z-10 mx-auto px-3 sm:px-4 py-6 sm:py-8 max-w-6xl">
         {/* Header */}
         <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 sm:mb-8">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" onClick={() => router.push('/')} className="gap-2">
-              <ChevronLeft className="w-4 h-4" />
-              <span className="hidden sm:inline">{uiLang === 'th' ? 'กลับหน้าหลัก' : 'Back to Home'}</span>
-              <span className="sm:hidden">{uiLang === 'th' ? 'กลับ' : 'Back'}</span>
-            </Button>
+            <Link href="/">
+              <Button variant="ghost" size="sm" className="gap-2 hover:bg-white/10">
+                <Home className="w-4 h-4" />
+                <span className="hidden sm:inline">{uiLang === 'th' ? 'หน้าหลัก' : 'Home'}</span>
+              </Button>
+            </Link>
           </div>
           <div className="flex items-center gap-2">
-            <Globe className="w-4 h-4 text-muted-foreground" />
+            <Globe className="w-4 h-4 text-muted-foreground hidden sm:block" />
             <Label className="text-xs sm:text-sm">EN</Label>
             <Switch
               checked={uiLang === 'th'}
               onCheckedChange={(checked) => setUiLang(checked ? 'th' : 'en')}
             />
             <Label className="text-xs sm:text-sm">TH</Label>
+            <ThemeToggle />
           </div>
         </header>
 
         {/* Title */}
         <div className="text-center mb-6 sm:mb-8">
           <div className="flex items-center justify-center gap-3 mb-3 sm:mb-4">
-            <div className="p-2 sm:p-3 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5">
-              <History className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+            <div className="p-2 sm:p-3 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/10">
+              <History className="w-6 h-6 sm:w-8 sm:h-8 text-purple-400" />
             </div>
           </div>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight mb-2 px-2">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight mb-2 px-2 bg-gradient-to-r from-purple-400 via-pink-400 to-purple-600 bg-clip-text text-transparent">
             {uiLang === 'th' ? 'ประวัติการสร้างแผน' : 'Generation History'}
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto px-4">

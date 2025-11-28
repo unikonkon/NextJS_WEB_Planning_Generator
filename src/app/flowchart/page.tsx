@@ -35,7 +35,9 @@ import {
   X,
   Save,
   History,
+  Home,
 } from 'lucide-react';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -1328,24 +1330,35 @@ export default function FlowchartPage() {
   const selectedCount = selectedFeatures.size;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <div className="page-gradient">
+      <div className="container relative z-10 mx-auto px-4 py-8 max-w-6xl">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex justify-end mb-4">
-            <Link href="/flowchart/history">
-              <Button variant="outline" size="sm">
-                <History className="size-4" />
-                ประวัติ Flowchart
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <Link href="/">
+              <Button variant="ghost" size="sm" className="gap-2 hover:bg-white/10">
+                <Home className="size-4" />
+                <span className="hidden sm:inline">หน้าหลัก</span>
               </Button>
             </Link>
+            <div className="flex items-center gap-2">
+              <Link href="/flowchart/history">
+                <Button variant="outline" size="sm" className="gap-2">
+                  <History className="size-4" />
+                  <span className="hidden sm:inline">ประวัติ Flowchart</span>
+                </Button>
+              </Link>
+              <ThemeToggle />
+            </div>
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
-            Website Planning Generator
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            สร้างแผนพัฒนาเว็บไซต์แบบ Step-by-Step
-          </p>
+          <div className="text-center">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-purple-600 bg-clip-text text-transparent">
+              Website Planning Generator
+            </h1>
+            <p className="text-muted-foreground mt-2">
+              สร้างแผนพัฒนาเว็บไซต์แบบ Step-by-Step
+            </p>
+          </div>
         </div>
 
         {/* Step Indicator */}
